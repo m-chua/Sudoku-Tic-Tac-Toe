@@ -1,0 +1,218 @@
+#include <stdio.h>
+//displays the grid
+//free positions having the positions written ex. 1 1 is empty so it will have 1 1
+// taken spots will have the input 
+void display(int W[6][3], int free[3][3][2])
+{
+  //variable declaration
+  int x,y;
+
+  //loop for x, y 
+  for(x=0;x<3;x++)
+    {for (y=0;y<3; y++)
+    {
+      //free will become 0 0 after it is occupied with an input
+      //if the space is not occupied, then output the position
+      if(free[x][y][0]!=0 && free[x][y][1]!=0)
+      printf("%d %d", free[x][y][0],free[x][y][1]);
+      else printf(" %d ", W[x][y]);
+      //if space is occupied, output the value inside
+      //for separators
+      if(y==1||y==0)
+        printf("|");
+    }
+     //for separators
+    if (x!=2)printf("\n-------------\n");
+    }
+  
+}
+
+int gameOver(int W[6][3])
+{
+  // aria le declaration
+  int sums[6]={0,0,0,0,0,0},x,y,count,out=2;
+
+  //loop for adding up One, Two, Three, ... , Six
+  //One, Two, ..., Six are represented as W[]
+  for(x=0;x<6;x++)
+    {
+      //counts if the cardinality is 3
+      count=0;
+      //for the 3 possible values in One, Two, ...
+      for(y=0;y<3;y++)
+      {
+        //if the slot is not empty, then code will get the running sum of W[] and it will up the count for cardinality
+        if(W[x][y]!=0)
+        {sums[x]+=W[x][y];
+         count++;
+        }
+      }
+      //if cardinality is not 3, then the sum will be considered invalid and will be returned to 0
+    if (count<3)
+      sums[x]=0;
+    }
+ 
+  for(x=0;x<6 && out==2;x++)
+    {
+      // if the sum is less than 15 but the cardinality is 3, it will return 0
+      if (sums[x]<15&&sums[x]!=0)
+        out=0; 
+      //if the sum is equal to 15 and the cardinality is 3, it will return 1
+      if (sums[x]==15)
+        out=1;
+    }
+  //if less than 15
+  //if equal to 15 (use if not else if)
+  // if the 2 conditions are not filled ( not ewual or less than 15) then return 2
+  return out;
+}
+//negation
+// 1 as true, 0 as false 
+//if true, become false, if false become true
+int reverse(int turn)
+{
+  if (turn==1)
+    return 0;
+  else if (turn==0) return 1;
+}
+
+int main() {
+  //variable declaration
+  int W[6][3], ok=0, next=0, turn=1, Peg[9]={1,2,3,4,5,6,7,8,9}, win=0, input, posX, posY, occ[3][3][2], free[3][3][2], x,y,z, valid1=0, valid2=0;
+  char dump;
+  // initialization
+for(x=0;x<3;x++)
+  for (y=0;y<3; y++)
+    {
+      //free ={(1, 1), (1,2), (1,3), (2,1), ... (3,3)}
+      // as 3d array to copy the grid format for easier visualization
+      free[x][y][0]=x+1;
+      free[x][y][1]=y+1;
+    }
+
+  //since W[ ]= One u Two u ... u Six, this initializes all of that as 0
+  //specs mention null set but NULL is considered a character and W[] is meant to be string
+  for(x=0;x<6;x++)
+  for (y=0;y<3; y++)
+    {
+     W[x][y]=0;
+    }
+  // outputs the grid with positions
+  printf("1 1|1 2|1 3\n-------------\n2 1|2 2|2 3\n------------\n3 1|3 2|3 3\n");
+  do{
+    
+    valid1=0; // (will indicate that the number input is valid)
+    //outputs the turns ( turn 1 is player 1, turn 0 is player 2)
+   if(turn==1)
+     printf("\nIt is Player 1's turn. \n");
+    else if (turn==0)
+      printf("\nIt is Player 2's turn. \n");
+
+    //will ask for number input until input is valid
+   do{ 
+     printf("What number do you want: ");
+    scanf ("%d",& input);
+    for(x=0; x<9; x++)
+      {
+        // Peg is the available inputs so if input is valid, the input will be removed from Peg ( by making 0) and valid1 will become true
+     if (input== Peg[x])
+     {
+       Peg[x]=0;
+       valid1=1;
+     } }
+     if (valid1==0) //(if invalid)
+       printf("\nInvalid input. Please input a number from 1-9 that has not been used.\n");
+} while(valid1==0);
+valid2=0; //(will indicate if position is valid)
+    while (valid2==0 && valid1==1){ //while position is false and input is valid
+printf("What is the position of the desired input? (please refer to the image above): ");
+    scanf("%d%c%d", &posX, &dump,&posY);
+
+      // if the positions are within free, then valid will be true 
+      //since free is in a grid and the grid index are just user inputs-1, pos-1 can be used 
+         if ((posX==free[posX-1][posY-1][0]) && (posY==free[posX-1][posY-1][1]))
+         {valid2=1; }
+       
+      if(valid2==0&&valid1==1) //if input is valid but position is not
+        printf("Invalid input. Please refer to the image above and please do not repeat inputs.");
+    }
+    //if both are valid
+    if(valid1 ==1 && valid2==1)
+    {
+      //reverse of(become true)
+      //ok indicated validity of input
+    ok=reverse(ok);
+      //add position into occupied and remove from free
+    occ [posX-1][posY-1][0]=posX;
+    occ[posX-1][posY-1][1]=posY;
+    free[posX-1][posY-1][0]=0;
+    free [posX-1][posY-1][0]=0;}
+//update system requirements
+    //next player move
+    //if ok is true (input is valid) and the input is on the top row
+if(ok && posX==1)
+{
+  //add input into One (represented as W[0]) and reverse next into true
+    W[0][posY-1]=input;
+    next=reverse(next);
+}
+    //add input to W[1]
+if (ok && posX==2)
+{
+    W[1][posY-1]=input;
+    next=reverse(next);
+}
+if(ok && posX==3)
+{
+    W[2][posY-1]=input;
+    next=reverse(next);
+}
+    //add input to Four represented as W[3]
+if (ok && next&& posY==1)
+{
+    W[3][posX-1]=input;
+  //reset next to false
+    next=reverse(next);
+  //reset ok to false
+    ok=reverse(ok);
+}
+if(ok && next && posY==2)
+{
+    W[4][posX-1]=input;
+    next=reverse(next);
+    ok=reverse(ok);
+}
+if (ok&&next&& posY==3)
+{
+    W[5][posX-1]=input;
+    next=reverse(next);
+    ok=reverse(ok);
+}
+
+    //display for checking and for gameplay
+    display(W,free);
+    
+//check if game end
+   win=gameOver(W);
+  /*  for (x=0;x<6;x++)
+      {
+        printf("%d : ", x+1);
+        for (y=0; y<3; y++)
+        {printf (" %d \t", W[x][y]);}
+        printf("\n");
+      }
+    *///for checking if correct inputs are kept
+  //reverses turn and switches active player
+    turn=reverse(turn);
+  } while (win==2);
+  //output win message
+  if(win==0)
+  {//less than 1*
+    turn=reverse(turn);
+    printf("\nPlayer %d wins. \n", turn+1);
+  }
+  if (win==1)
+    printf("\nPlayer %d wins. \n",turn+1);
+  //equal to 15
+  return 0;
+}
